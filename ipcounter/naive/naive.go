@@ -17,9 +17,9 @@ Cons:
 */
 
 import (
+	"IP-Addr-Counter/ipcounter/utils"
 	"bufio"
 	"fmt"
-	"net"
 	"os"
 	"strings"
 )
@@ -45,7 +45,7 @@ func (c *NaiveCounter) CountUniqueIPs(filename string) (int, error) {
 		if line == "" {
 			continue
 		}
-		ipInt, err := ipToUint32(line)
+		ipInt, err := utils.IPToUint32(line)
 		if err != nil {
 			continue
 		}
@@ -57,15 +57,4 @@ func (c *NaiveCounter) CountUniqueIPs(filename string) (int, error) {
 	}
 
 	return len(uniqueIPs), nil
-}
-
-// ipToUint32 converts a string IPv4 address
-// into its 32-bit unsigned integer representation.
-func ipToUint32(ipStr string) (uint32, error) {
-	ip := net.ParseIP(ipStr).To4()
-	if ip == nil {
-		return 0, fmt.Errorf("invalid IPv4 address: %s", ipStr)
-	}
-	// Shift each byte to its position and combine into one uint32
-	return uint32(ip[0])<<24 | uint32(ip[1])<<16 | uint32(ip[2])<<8 | uint32(ip[3]), nil
 }
