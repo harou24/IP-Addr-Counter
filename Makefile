@@ -25,7 +25,7 @@ concurrent:
 	@echo "Running with concurrent bitset implementation"
 	$(MAKE) IMPL=concurrent run
 
-profile:
+profile: build
 	@if [ -z "$(FILE)" ]; then \
 	    echo "Usage: make profile FILE=<filename>"; \
 	    exit 1; \
@@ -40,4 +40,3 @@ bench:
 
 clean:
 	rm -f $(BINARY_NAME) cpu.prof mem.prof goroutine.prof
- 
