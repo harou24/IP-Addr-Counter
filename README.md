@@ -21,3 +21,18 @@ This project includes multiple implementations, starting with a naive map-based 
 
 - `make clean`  
   Remove the built binary.
+
+## Examples
+
+### Bitset
+
+```
+ make bitset FILE=testdata/ip_addresses
+
+Running with bitset implementation
+/Library/Developer/CommandLineTools/usr/bin/make IMPL=bitset run
+go build -o ip-addr-counter ./cmd/main.go
+Implementation: bitset
+Unique IP addresses: 1000000000
+Execution time: 7m23.139349708s
+```

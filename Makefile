@@ -1,26 +1,28 @@
-.PHONY: build run naive best test bench clean
+.PHONY: build run naive bitset test bench clean
 
 BINARY_NAME=ip-addr-counter
+MAIN=./cmd/main.go
 
-MAIN=cmd/naive.go
+# Default implementation
+IMPL ?= naive
 
 build:
 	go build -o $(BINARY_NAME) $(MAIN)
 
-run:
+run: build
 	@if [ -z "$(FILE)" ]; then \
-		echo "Usage: make run FILE=<filename>"; \
+		echo "Usage: make run IMPL=<naive|bitset> FILE=<filename>"; \
 		exit 1; \
-	fi
-	./$(BINARY_NAME) $(FILE)
+	fi; \
+	./$(BINARY_NAME) $(IMPL) $(FILE)
 
 naive:
-	@echo "Building and running naive implementation"
-	$(MAKE) MAIN=cmd/naive.go build
-	$(MAKE) run
+	@echo "Running with naive implementation"
+	$(MAKE) IMPL=naive run
 
-best:
-	@echo "Best implementation not done yet, skipping..."
+bitset:
+	@echo "Running with bitset implementation"
+	$(MAKE) IMPL=bitset run
 
 test:
 	go test ./...
