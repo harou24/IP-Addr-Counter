@@ -20,3 +20,9 @@ Thumbs.db
 testdata/*
 !testdata/sample_100k.txt
 !testdata/sample_100k_with_duplicates.txt
+
+# Profiling
+*.prof
+
+# Other
+*.bak
