@@ -1,0 +1,22 @@
+# Binaries
+/ip-addr-counter
+*.exe
+*.out
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Archives
+*.zip
+*.tar.gz
+
+# Test data
+testdata/*
+!testdata/sample_100k.txt
+!testdata/sample_100k_with_duplicates.txt
