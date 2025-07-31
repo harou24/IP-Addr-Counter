@@ -1,10 +1,10 @@
 package naive
 
 /*
-Naive implementation of unique IPv4 address counting.
+Package naive provides an implementation for counting unique IPv4 addresses.
 
-This program reads a file containing one IPv4 address per line,
-parses each IP into a 32-bit integer, and stores it in a map to track uniqueness.
+It reads a file containing one IPv4 address per line, parses each address into a 32-bit
+unsigned integer, and tracks uniqueness using a Go map.
 
 Pros:
 - Simple and easy to understand.
