@@ -1,5 +1,23 @@
 package concurrent
 
+/*
+Package concurrent provides an efficient implementation for counting unique IPv4 addresses.
+
+It reads a file containing one IPv4 address per line, processes the file in chunks using
+multiple goroutines, and tracks uniqueness with a sharded bitset to minimize memory usage
+and lock contention. Each shard uses a mutex for thread-safe updates, and a sync.Pool
+reuses buffers to reduce memory allocation overhead.
+
+Pros:
+- Memory-efficient due to bitset usage (512MB for 2^32 IPs, divided across shards).
+- High concurrency with multiple worker goroutines, leveraging CPU cores.
+- Scales well for large datasets.
+
+Cons:
+- Mutex contention across shards can bottleneck performance for high worker counts.
+- Chunk copying and I/O may introduce overhead for very large files.
+*/
+
 import (
 	"IP-Addr-Counter/ipcounter/utils"
 	"bufio"
@@ -12,21 +30,24 @@ import (
 )
 
 const (
-	maxIPv4       = 1 << 32
-	bytesPerChunk = 4 * 1024 * 1024
-	chunkQueueLen = 128
-	numShards     = 4096 // Fine-grained shards for minimal lock contention
+	maxIPv4       = 1 << 32         // Total number of possible IPv4 addresses (2^32).
+	bytesPerChunk = 4 * 1024 * 1024 // Size of each file chunk (4MB) for reading.
+	chunkQueueLen = 128             // Buffered channel size for chunk processing.
+	numShards     = 4096            // Number of shards to reduce mutex contention.
 )
 
+// shard represents a portion of the bitset with a mutex for thread-safe updates.
 type shard struct {
-	mu     sync.Mutex
-	bitset []byte
+	mu     sync.Mutex // Protects bitset from concurrent access.
+	bitset []byte     // Bitset for storing unique IPs in this shard.
 }
 
+// BitsetCounter manages a sharded bitset for counting unique IPs.
 type BitsetCounter struct {
-	shards []*shard
+	shards []*shard // Array of shards, each covering a subset of the IP space.
 }
 
+// New initializes a BitsetCounter with pre-allocated shards.
 func New() *BitsetCounter {
 	shards := make([]*shard, numShards)
 	shardSize := maxIPv4 / 8 / numShards
@@ -38,6 +59,9 @@ func New() *BitsetCounter {
 	return &BitsetCounter{shards: shards}
 }
 
+// CountUniqueIPs counts unique IPv4 addresses in the specified file.
+// It reads the file in chunks, processes them concurrently using multiple goroutines,
+// and aggregates the count of unique IPs using a sharded bitset.
 func (b *BitsetCounter) CountUniqueIPs(filename string) (int64, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -49,16 +73,19 @@ func (b *BitsetCounter) CountUniqueIPs(filename string) (int64, error) {
 	chunkChan := make(chan []byte, chunkQueueLen)
 	resultChan := make(chan int64, chunkQueueLen)
 
+	// Initialize a sync.Pool to reuse chunk buffers and reduce allocations.
 	bufPool := sync.Pool{
 		New: func() interface{} {
 			return make([]byte, bytesPerChunk)
 		},
 	}
 
+	// Set number of workers to CPU core count for optimal parallelism.
 	numWorkers := runtime.NumCPU()
 	runtime.GOMAXPROCS(numWorkers)
 
 	var wg sync.WaitGroup
+	// Start worker goroutines to process chunks concurrently.
 	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
 		go func() {
@@ -71,6 +98,7 @@ func (b *BitsetCounter) CountUniqueIPs(filename string) (int64, error) {
 		}()
 	}
 
+	// Start a goroutine to aggregate results from workers.
 	var resultWg sync.WaitGroup
 	resultWg.Add(1)
 	var total int64
@@ -81,7 +109,7 @@ func (b *BitsetCounter) CountUniqueIPs(filename string) (int64, error) {
 		}
 	}()
 
-	// Feed chunks
+	// Read file in chunks and distribute to workers.
 	for {
 		buf := bufPool.Get().([]byte)
 		n, err := io.ReadFull(reader, buf)
@@ -92,9 +120,9 @@ func (b *BitsetCounter) CountUniqueIPs(filename string) (int64, error) {
 				buf = append(buf[:n], rem...)
 				chunkCopy := make([]byte, len(buf))
 				copy(chunkCopy, buf)
-				chunkChan <- chunkCopy
+				chunkChan <- chunkCopy // Send chunk to workers.
 			} else {
-				bufPool.Put(buf)
+				bufPool.Put(buf) // Return unused buffer.
 			}
 			break
 		}
@@ -111,6 +139,7 @@ func (b *BitsetCounter) CountUniqueIPs(filename string) (int64, error) {
 			buf = buf[:n]
 		}
 
+		// Create a copy of the chunk to avoid data races in workers.
 		chunkCopy := make([]byte, len(buf))
 		copy(chunkCopy, buf)
 		chunkChan <- chunkCopy
@@ -124,6 +153,9 @@ func (b *BitsetCounter) CountUniqueIPs(filename string) (int64, error) {
 	return total, nil
 }
 
+// processChunk processes a chunk of the input file, parsing IPv4 addresses
+// and updating the sharded bitset to count unique IPs.
+// Returns the number of new unique IPs found in the chunk.
 func processChunk(chunk []byte, b *BitsetCounter) int64 {
 	var count int64
 	start := 0
@@ -134,11 +166,13 @@ func processChunk(chunk []byte, b *BitsetCounter) int64 {
 			if len(line) == 0 {
 				continue
 			}
-			ipInt, err := utils.IPToUint32(string(line))
+			// Parse IP address to uint32 using optimized byte-based parser.
+			ipInt, err := utils.ParseIPv4(line)
 			if err != nil {
 				continue
 			}
 
+			// Determine shard and bit position for the IP.
 			shardIdx := ipInt % numShards
 			s := b.shards[shardIdx]
 			offset := ipInt / numShards
@@ -146,9 +180,10 @@ func processChunk(chunk []byte, b *BitsetCounter) int64 {
 			bitIndex := offset % 8
 			mask := byte(1 << bitIndex)
 
+			// Update bitset under lock to ensure thread safety.
 			s.mu.Lock()
 			if s.bitset[byteIndex]&mask == 0 {
-				s.bitset[byteIndex] |= mask
+				s.bitset[byteIndex] |= mask // Mark IP as seen.
 				count++
 			}
 			s.mu.Unlock()
