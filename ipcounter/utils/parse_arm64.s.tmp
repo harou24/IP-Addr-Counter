@@ -1,0 +1,81 @@
+#include "textflag.h"
+
+// func ParseIPv4(b []byte) (uint32, error)
+TEXT ·ParseIPv4Asm(SB), NOSPLIT, $0-48
+    MOVD b+0(FP), R0      // b.ptr
+    MOVD b+8(FP), R1      // b.len
+
+    // Preload constants
+    MOVD $'.', R8         // '.' (46)
+    MOVD $'0', R9         // '0' (48)
+    MOVD $'9', R10        // '9' (57)
+    MOVD $3, R11          // Dot count limit
+    MOVD $255, R7         // Max part value
+
+    MOVD $0, R2           // ip
+    MOVD $0, R3           // part
+    MOVD $0, R4           // dot count
+
+loop:
+    CBZ R1, finish        // Check if bytes left
+
+    MOVBU (R0), R5        // Load next byte
+    ADD $1, R0            // Advance pointer
+    SUB $1, R1            // Decrement length
+
+    CMP R5, R8            // Compare with '.'
+    BEQ dot
+
+    CMP R5, R9            // Compare with '0'
+    BLT invalid
+    CMP R5, R10           // Compare with '9'
+    BGT invalid
+
+    // Process digit
+    MOVD $10, R6
+    MUL R3, R6            // part *= 10
+    SUB $'0', R5, R5      // Convert char to digit
+    ADD R5, R6, R3        // part = part*10 + digit
+
+    CMP R3, R7            // Check part <= 255?
+    BHI invalid
+
+    B loop
+
+dot:
+    CMP R4, R11           // Compare dot count with 3
+    BGE invalid
+
+    LSL $8, R2, R2        // Shift accumulated ip
+    ORR R3, R2, R2        // Add current part
+    MOVD $0, R3           // Reset current part
+    ADD $1, R4            // Increment dot count
+    B loop
+
+finish:
+    CMP R4, R11           // Verify exactly 3 dots
+    BNE invalid
+
+    LSL $8, R2, R2        // Final shift
+    ORR R3, R2, R2        // Add last part
+
+    // Store result (uint32) at 24(FP)
+    MOVW R2, ret+24(FP)
+
+    // Store nil error
+    MOVD $0, R12
+    MOVD R12, ret+32(FP)  // error type
+    MOVD R12, ret+40(FP)  // error value
+    RET
+
+invalid:
+    // Store 0 for IP
+    MOVW $0, R12
+    MOVW R12, ret+24(FP)
+
+    // Store non-nil error
+    MOVD $1, R12
+    MOVD R12, ret+32(FP)  // error type
+    MOVD $0, R12
+    MOVD R12, ret+40(FP)  // error value
+    RET

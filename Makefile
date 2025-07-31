@@ -4,7 +4,11 @@ BINARY_NAME=ip-addr-counter
 MAIN=./cmd/main.go
 
 build:
+ifeq ($(IMPL),cgo)
+	CGO_ENABLED=1 go build -o $(BINARY_NAME) $(MAIN)
+else
 	go build -o $(BINARY_NAME) $(MAIN)
+endif
 
 run: build
 	@if [ -z "$(FILE)" ]; then \
@@ -40,4 +44,3 @@ bench:
 
 clean:
 	rm -f $(BINARY_NAME) cpu.prof mem.prof goroutine.prof
- 
