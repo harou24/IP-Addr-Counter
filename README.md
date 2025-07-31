@@ -1,4 +1,6 @@
 # IP-Addr-Counter
+[![Ubuntu CI](https://github.com/harou24/IP-Addr-Counter/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/harou24/IP-Addr-Counter/actions/workflows/ubuntu.yml)
+[![macOS CI](https://github.com/harou24/IP-Addr-Counter/actions/workflows/macos.yml/badge.svg)](https://github.com/harou24/IP-Addr-Counter/actions/workflows/macos.yml)
 
 A Go tool to count unique IPv4 addresses from large files efficiently.
 
