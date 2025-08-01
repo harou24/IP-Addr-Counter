@@ -1,6 +1,5 @@
 /*
-Package concurrent provides an efficient implementation for counting unique IPv4 addresses.
-
+Package assembly provides an efficient implementation for counting unique IPv4 addresses.
 It reads a file containing one IPv4 address per line, processes the file in chunks using
 multiple goroutines, and tracks uniqueness with a sharded bitset to minimize memory usage.
 Atomic operations ensure thread-safe bitset updates, eliminating lock contention. A sync.Pool
@@ -15,12 +14,12 @@ Cons:
 - Chunk copying and I/O may introduce overhead for very large files.
 - More complex than naive implementations due to sharding and concurrency.
 */
+
 package assembly
 
 import (
 	"IP-Addr-Counter/ipcounter/utils"
 	"bufio"
-	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -101,6 +100,7 @@ func (b *BitsetCounter) CountUniqueIPs(filename string) (int64, error) {
 
 	// Create a buffered reader for efficient file reading.
 	reader := bufio.NewReader(file)
+
 	// Channels for distributing chunks to workers and collecting results.
 	chunkChan := make(chan []byte, chunkQueueLen)
 	resultChan := make(chan int64, chunkQueueLen)
@@ -193,26 +193,14 @@ func processChunk(chunk []byte, b *BitsetCounter) int64 {
 	start := 0
 	for i, c := range chunk {
 		if c == '\n' {
-			// Extract and trim the current line (IP address).
-			line := bytes.TrimSpace(chunk[start:i])
+			line := chunk[start:i]
 			start = i + 1
-			if len(line) == 0 {
-				continue // Skip empty lines.
-			}
-
-			ipInt, err := utils.ParseIPv4(line)
-			if err != nil {
-				continue // Skip invalid IPs.
-			}
-
-			// Determine shard and bit position for the IP.
+			ipInt, _ := utils.ParseIPv4Asm(line)
 			shardIdx := ipInt % numShards
 			s := b.shards[shardIdx]
 			offset := ipInt / numShards
-
-			// Atomically update bitset to mark IP as seen.
 			if setBit(s, offset) {
-				count++ // Increment count for new IPs.
+				count++
 			}
 		}
 	}

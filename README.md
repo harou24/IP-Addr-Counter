@@ -62,3 +62,10 @@ Goroutine profile saved to goroutine.prof
 Memory profile saved to mem.prof
 CPU profile saved to cpu.prof
 ```
+
+### Fastest
+```
+make profile IMPL=asm FILE=testdata/ip_addresses  
+Unique IPs: 1000000000
+Time taken: 36.730638416s
+```

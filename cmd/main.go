@@ -3,7 +3,6 @@ package main
 import (
 	"IP-Addr-Counter/ipcounter/assembly"
 	"IP-Addr-Counter/ipcounter/bitset"
-	"IP-Addr-Counter/ipcounter/cgo"
 	"IP-Addr-Counter/ipcounter/concurrent"
 	"IP-Addr-Counter/ipcounter/naive"
 	"fmt"
@@ -32,10 +31,8 @@ func main() {
 		counter = bitset.New()
 	case "concurrent":
 		counter = concurrent.New()
-	case "assembly":
+	case "asm":
 		counter = assembly.New()
-	case "cgo":
-		counter = cgo.New()
 	default:
 		fmt.Printf("Unknown implementation: %s\n", impl)
 		fmt.Println("Implementations: naive, bitset, concurrent, assembly")
