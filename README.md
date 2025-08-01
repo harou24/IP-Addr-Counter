@@ -69,3 +69,29 @@ make profile IMPL=asm FILE=testdata/ip_addresses
 Unique IPs: 1000000000
 Time taken: 36.730638416s
 ```
+```
+ make asm FILE=testdata/ip_addresses
+Running with assembly implementation
+/Library/Developer/CommandLineTools/usr/bin/make IMPL=asm run
+go build -gcflags=all="-B -l=4" -ldflags="-s -w" -o ip-addr-counter ./cmd/main.go
+Unique IPs: 1000000000
+Time taken: 34.757187875s
+```
+
+```
+make asm FILE=testdata/ip_addresses
+Running with assembly implementation
+/Library/Developer/CommandLineTools/usr/bin/make IMPL=asm run
+go build -gcflags=all="-B -l=4 -d=checkptr=0" -ldflags="-s -w" -o ip-addr-counter ./cmd/main.go # Add -pgo=default.pgo if using PGO
+Unique IPs: 1000000000
+Time taken: 34.599428291s
+```
+
+```
+make fast FILE=testdata/ip_addresses
+Running with assembly implementation, all disables, and GC off
+GOGC=off GODEBUG="cgocheck=0,asyncpreemptoff=1,invalidptr=0" /Library/Developer/CommandLineTools/usr/bin/make IMPL=asm run
+go build -gcflags=all="-B -l=4 -d=checkptr=0 -wb=0" -ldflags="-s -w" -o ip-addr-counter ./cmd/main.go
+Unique IPs: 1000000000
+Time taken: 34.262430834s
+```

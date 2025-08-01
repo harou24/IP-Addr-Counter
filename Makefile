@@ -1,12 +1,12 @@
-.PHONY: build run naive bitset concurrent asm test bench clean profile
+.PHONY: build run naive bitset concurrent asm test bench clean profile nogc fast
 
 BINARY_NAME=ip-addr-counter
 
 MAIN=./cmd/main.go
 
 build:
-ifeq ($(IMPL),cgo)
-	CGO_ENABLED=1 go build -o $(BINARY_NAME) $(MAIN)
+ifeq ($(IMPL),asm)
+	go build -gcflags=all="-B -l=4 -d=checkptr=0 -wb=0" -ldflags="-s -w" -o $(BINARY_NAME) $(MAIN)
 else
 	go build -o $(BINARY_NAME) $(MAIN)
 endif
@@ -33,6 +33,14 @@ concurrent:
 asm:
 	@echo "Running with assembly implementation"
 	$(MAKE) IMPL=asm run
+
+nogc:
+	@echo "Running with assembly implementation and GC off"
+	GOGC=off $(MAKE) IMPL=asm run
+
+fast:
+	@echo "Running with assembly implementation, all disables, and GC off"
+	GOGC=off GODEBUG="cgocheck=0,asyncpreemptoff=1,invalidptr=0" $(MAKE) IMPL=asm run
 
 profile:
 	@if [ -z "$(FILE)" ]; then \
