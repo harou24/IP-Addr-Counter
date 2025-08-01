@@ -20,12 +20,12 @@ package assembly
 import (
 	"IP-Addr-Counter/ipcounter/utils"
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"os"
 	"runtime"
 	"sync"
-	"sync/atomic"
 	"unsafe"
 )
 
@@ -60,31 +60,19 @@ func New() *BitsetCounter {
 	return &BitsetCounter{shards: shards}
 }
 
-// setBit atomically sets a bit in the shard's bitset for the given offset.
-// Returns true if the bit was newly set (indicating a unique IP), false if already set.
+//go:noescape
+func setBitAsm(ptr uintptr, mask uint32) bool
+
+// setBit in Go (in assembly package)
 func setBit(s *shard, offset uint32) bool {
 	byteIndex := offset / 8
 	bitIndex := offset % 8
 	mask := byte(1 << bitIndex)
-
-	// Calculate the uint32-aligned index and bit offset within it
 	wordIndex := byteIndex / 4
 	byteOffset := byteIndex % 4
 	wordMask := uint32(mask) << (byteOffset * 8)
-
-	// Get the uint32 pointer using unsafe.Pointer
-	ptr := (*uint32)(unsafe.Pointer(&s.bitset[wordIndex*4]))
-
-	for {
-		old := atomic.LoadUint32(ptr)
-		if old&wordMask != 0 {
-			return false // Bit already set, IP is not unique.
-		}
-		new := old | wordMask
-		if atomic.CompareAndSwapUint32(ptr, old, new) {
-			return true // Bit newly set, IP is unique.
-		}
-	}
+	ptr := uintptr(unsafe.Pointer(&s.bitset[0])) + uintptr(wordIndex)*4
+	return setBitAsm(ptr, wordMask)
 }
 
 // CountUniqueIPs counts unique IPv4 addresses in the specified file.
@@ -114,7 +102,7 @@ func (b *BitsetCounter) CountUniqueIPs(filename string) (int64, error) {
 
 	// Set number of workers to CPU core count for optimal parallelism.
 	numWorkers := runtime.NumCPU()
-	runtime.GOMAXPROCS(numWorkers)
+	//runtime.GOMAXPROCS(numWorkers)
 
 	// Start worker goroutines to process chunks concurrently.
 	var wg sync.WaitGroup
@@ -188,20 +176,25 @@ func (b *BitsetCounter) CountUniqueIPs(filename string) (int64, error) {
 // processChunk processes a chunk of the input file, parsing IPv4 addresses
 // and updating the sharded bitset to count unique IPs using atomic operations.
 // Returns the number of new unique IPs found in the chunk.
+// processChunk processes a chunk of the input file, parsing IPv4 addresses
+// and updating the sharded bitset to count unique IPs using atomic operations.
+// Returns the number of new unique IPs found in the chunk.
 func processChunk(chunk []byte, b *BitsetCounter) int64 {
 	var count int64
 	start := 0
-	for i, c := range chunk {
-		if c == '\n' {
-			line := chunk[start:i]
-			start = i + 1
-			ipInt, _ := utils.ParseIPv4Asm(line)
-			shardIdx := ipInt % numShards
-			s := b.shards[shardIdx]
-			offset := ipInt / numShards
-			if setBit(s, offset) {
-				count++
-			}
+	for {
+		i := bytes.IndexByte(chunk[start:], '\n')
+		if i == -1 {
+			break
+		}
+		line := chunk[start : start+i]
+		start += i + 1
+		ipInt, _ := utils.ParseIPv4Asm(line)
+		shardIdx := ipInt % numShards
+		s := b.shards[shardIdx]
+		offset := ipInt / numShards
+		if setBit(s, offset) {
+			count++
 		}
 	}
 	return count
