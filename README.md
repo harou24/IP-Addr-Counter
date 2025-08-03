@@ -95,3 +95,20 @@ go build -gcflags=all="-B -l=4 -d=checkptr=0 -wb=0" -ldflags="-s -w" -o ip-addr-
 Unique IPs: 1000000000
 Time taken: 34.262430834s
 ```
+```
+make fast FILE=testdata/ip_addresses
+Running with assembly implementation, all disables, and GC off
+GOGC=off GODEBUG="cgocheck=0,asyncpreemptoff=1,invalidptr=0" /Library/Developer/CommandLineTools/usr/bin/make IMPL=asm run
+go build -gcflags=all="-B -l=4 -d=checkptr=0 -wb=0" -ldflags="-s -w" -o ip-addr-counter ./cmd/main.go
+Unique IPs: 1000000000
+Time taken: 34.128075041s
+```
+
+```
+make fast FILE=testdata/ip_addresses
+Running with assembly implementation, all disables, and GC off
+GOGC=off GODEBUG="cgocheck=0,asyncpreemptoff=1,invalidptr=0" /Library/Developer/CommandLineTools/usr/bin/make IMPL=asm run
+go build -gcflags=all="-B -l=4 -d=checkptr=0 -wb=0" -ldflags="-s -w" -o ip-addr-counter ./cmd/main.go
+Unique IPs: 1000000000
+Time taken: 33.885425208s
+```
