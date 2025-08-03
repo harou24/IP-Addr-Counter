@@ -37,7 +37,7 @@ func TestBitsetWithSampleData(t *testing.T) {
 		t.Fatalf("BitsetCounter failed: %v", err)
 	}
 
-	if expected != actual {
+	if expected != int64(actual) {
 		t.Errorf("Expected %d unique IPs, got %d", expected, actual)
 	}
 }
@@ -59,7 +59,7 @@ func TestBitsetWithDuplicates(t *testing.T) {
 		t.Fatalf("BitsetCounter failed: %v", err)
 	}
 
-	if expected != actual {
+	if expected != int64(actual) {
 		t.Errorf("Expected %d unique IPs, got %d", expected, actual)
 	}
 }

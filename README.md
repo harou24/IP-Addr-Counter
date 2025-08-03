@@ -36,3 +36,28 @@ Implementation: bitset
 Unique IP addresses: 1000000000
 Execution time: 7m23.139349708s
 ```
+
+### Concurrent
+
+```
+make profile IMPL=concurrent FILE=testdata/ip_addresses 
+
+
+Implementation: concurrent
+Unique IP addresses: 1000000000
+Execution time: 1m38.650049584s
+Goroutine profile saved to goroutine.prof
+Memory profile saved to mem.prof
+CPU profile saved to cpu.prof
+```
+
+```
+make profile IMPL=concurrent FILE=testdata/ip_addresses
+
+Implementation: concurrent
+Unique IP addresses: 1000000000
+Execution time: 51.644481042s
+Goroutine profile saved to goroutine.prof
+Memory profile saved to mem.prof
+CPU profile saved to cpu.prof
+```

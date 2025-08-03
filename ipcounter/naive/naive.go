@@ -30,7 +30,7 @@ func New() *NaiveCounter {
 	return &NaiveCounter{}
 }
 
-func (c *NaiveCounter) CountUniqueIPs(filename string) (int, error) {
+func (c *NaiveCounter) CountUniqueIPs(filename string) (int64, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return 0, fmt.Errorf("failed to open file: %w", err)
@@ -56,5 +56,5 @@ func (c *NaiveCounter) CountUniqueIPs(filename string) (int, error) {
 		return 0, fmt.Errorf("error reading file: %w", err)
 	}
 
-	return len(uniqueIPs), nil
+	return int64(len(uniqueIPs)), nil
 }

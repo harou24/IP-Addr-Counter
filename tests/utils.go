@@ -20,7 +20,7 @@ func getTestFile(name string) (string, error) {
 
 // getExpectedUniqueCount runs the Unix pipeline: sort | uniq | wc -l
 // and returns the number of unique lines (IP addresses) in the file.
-func getExpectedUniqueCount(filename string) (int, error) {
+func getExpectedUniqueCount(filename string) (int64, error) {
 	cmd := exec.Command("sh", "-c", "sort "+filename+" | uniq | wc -l")
 	output, err := cmd.Output()
 	if err != nil {
@@ -28,5 +28,6 @@ func getExpectedUniqueCount(filename string) (int, error) {
 	}
 
 	result := strings.TrimSpace(string(output))
-	return strconv.Atoi(result)
+	res, err := strconv.Atoi(result)
+	return int64(res), err
 }

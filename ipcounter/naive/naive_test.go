@@ -17,7 +17,7 @@ func TestCountUniqueIPs(t *testing.T) {
 		"10.0.0.1", // duplicate
 	}
 
-	expectedUnique := 3
+	expectedUnique := int64(3)
 
 	filePath := createTempFile(t, lines)
 	defer os.Remove(filePath)

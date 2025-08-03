@@ -24,7 +24,7 @@ func New() *BitsetCounter {
 
 // CountUniqueIPs counts the number of unique IPv4 addresses in the given file.
 // It uses a bitset to efficiently track seen addresses.
-func (b *BitsetCounter) CountUniqueIPs(filename string) (int, error) {
+func (b *BitsetCounter) CountUniqueIPs(filename string) (int64, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return 0, fmt.Errorf("failed to open file: %w", err)
@@ -58,5 +58,5 @@ func (b *BitsetCounter) CountUniqueIPs(filename string) (int, error) {
 		return 0, fmt.Errorf("error reading file: %w", err)
 	}
 
-	return count, nil
+	return int64(count), nil
 }

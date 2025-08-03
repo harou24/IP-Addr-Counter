@@ -1,18 +1,15 @@
-.PHONY: build run naive bitset test bench clean
+.PHONY: build run naive bitset concurrent test bench clean profile
 
 BINARY_NAME=ip-addr-counter
 MAIN=./cmd/main.go
-
-# Default implementation
-IMPL ?= naive
 
 build:
 	go build -o $(BINARY_NAME) $(MAIN)
 
 run: build
 	@if [ -z "$(FILE)" ]; then \
-		echo "Usage: make run IMPL=<naive|bitset> FILE=<filename>"; \
-		exit 1; \
+	    echo "Usage: make run FILE=<filename>"; \
+	    exit 1; \
 	fi; \
 	./$(BINARY_NAME) $(IMPL) $(FILE)
 
@@ -24,6 +21,17 @@ bitset:
 	@echo "Running with bitset implementation"
 	$(MAKE) IMPL=bitset run
 
+concurrent:
+	@echo "Running with concurrent bitset implementation"
+	$(MAKE) IMPL=concurrent run
+
+profile: build
+	@if [ -z "$(FILE)" ]; then \
+	    echo "Usage: make profile FILE=<filename>"; \
+	    exit 1; \
+	fi; \
+	PPROF=1 ./$(BINARY_NAME) $(IMPL) $(FILE)
+
 test:
 	go test ./...
 
@@ -31,4 +39,4 @@ bench:
 	go test -bench=. -benchmem ./tests
 
 clean:
-	rm -f $(BINARY_NAME)
+	rm -f $(BINARY_NAME) cpu.prof mem.prof goroutine.prof
