@@ -18,33 +18,20 @@ Optimizations in "asm" and variants focus on reducing runtime overheads like bou
 - Go 1.24+.
 - Test data file.
 
-### Makefile Commands
-- `make naive FILE=<filename>`  
-  Build and run the naive implementation on the given file.
+# Makefile Commands
 
-- `make bitset FILE=<filename>`  
-  Build and run the bitset implementation on the given file.
 
-- `make concurrent FILE=<filename>`  
-  Build and run the concurrent sharded bitset implementation on the given file.
-
-- `make asm FILE=<filename>`  
-  Build and run the assembly-optimized implementation (with compiler flags for speed) on the given file.
-
-- `make fast FILE=<filename>`  
-  Build and run the assembly implementation with maximum disables: GC off, no cgo checks, no async preemption, and no invalid pointer checks (via GODEBUG). Highest risk but potentially fastest for benchmarking.
-
-- `make profile FILE=<filename>`  
-  Build and run with profiling enabled (generates cpu.prof, mem.prof, goroutine.prof for analysis with `go tool pprof`).
-
-- `make test`  
-  Run all unit and integration tests.
-
-- `make bench`  
-  Run benchmarks for all implementations and Unix command comparison.
-
-- `make clean`  
-  Remove the built binary and profile files.
+| Command | Description |
+|---------|-------------|
+| `make naive FILE=<filename>` | Build and run the naive implementation on the given file. |
+| `make bitset FILE=<filename>` | Build and run the bitset implementation on the given file. |
+| `make concurrent FILE=<filename>` | Build and run the concurrent sharded bitset implementation on the given file. |
+| `make asm FILE=<filename>` | Build and run the assembly-optimized implementation (with compiler flags for speed) on the given file. |
+| `make fast FILE=<filename>` | Build and run the assembly implementation with maximum disables: GC off, no cgo checks, no async preemption, and no invalid pointer checks (via GODEBUG). Highest risk but potentially fastest for benchmarking. |
+| `make profile FILE=<filename>` | Build and run with profiling enabled (generates cpu.prof, mem.prof, goroutine.prof for analysis with `go tool pprof`). |
+| `make test` | Run all unit and integration tests. |
+| `make bench` | Run benchmarks for all implementations and Unix command comparison. |
+| `make clean` | Remove the built binary and profile files. |
 
 
 ## Examples
