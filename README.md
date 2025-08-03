@@ -52,12 +52,11 @@ CPU profile saved to cpu.prof
 ```
 
 ```
-make profile IMPL=concurrent FILE=testdata/ip_addresses  
-
+make profile IMPL=concurrent FILE=testdata/ip_addresses
 
 Implementation: concurrent
 Unique IP addresses: 1000000000
-Execution time: 55.942383542s
+Execution time: 51.644481042s
 Goroutine profile saved to goroutine.prof
 Memory profile saved to mem.prof
 CPU profile saved to cpu.prof
