@@ -26,7 +26,7 @@ func main() {
 
 	switch impl {
 	case "naive":
-		counter = &naive.NaiveCounter{}
+		counter = naive.New()
 	case "bitset":
 		counter = bitset.New()
 	case "concurrent":
@@ -39,6 +39,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	fmt.Printf("Starting to count unique IPs using %s implementation on %s\n", impl, filename)
 	start := time.Now()
 	count, err := counter.CountUniqueIPs(filename)
 	if err != nil {
