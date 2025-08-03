@@ -5,12 +5,13 @@
 A Go tool to count unique IPv4 addresses from large files efficiently.
 
 This project includes multiple implementations with varying levels of optimization for performance and memory usage:
-- **naive**: A basic implementation using a map to track unique IPs. Simple but memory-intensive for large datasets (uses ~GBs for 1B IPs).
+- **naive**: A basic implementation using a map to track unique IPs as a starting point.
 - **bitset**: An efficient single-threaded implementation using a fixed-size bitset (512MB for all possible IPv4 addresses) to mark seen IPs, reducing memory compared to maps.
 - **concurrent**: A multi-threaded version of bitset with sharding (divides the bitset into 16384 shards) and atomic updates for thread-safe concurrency, leveraging multiple CPU cores for faster processing on large files.
 - **asm**: The most optimized implementation, building on concurrent with assembly-optimized IP parsing and bit operations for lower-level efficiency. Includes compiler flags to disable bounds checks (-B), enable aggressive inlining (-l=4), disable pointer checks (-d=checkptr=0), and disable write barriers (-wb=0) for speed.
 
 Optimizations in "asm" and variants focus on reducing runtime overheads like bounds checking and GC pauses, but they assume well-formed input and can increase crash risk if misused—use for benchmarking.
+
 
 ## How to Run
 
@@ -18,8 +19,12 @@ Optimizations in "asm" and variants focus on reducing runtime overheads like bou
 - Go 1.24+.
 - Test data file.
 
-# Makefile Commands
 
+### Test Data
+Sample test data is provided in the repository under the `testdata` folder, including `sample_100k.txt` (100,000 IP addresses), `sample_100k_with_duplicates.txt`, and `sample_35M.txt` (35 million IP addresses). To access the full 120GB dataset, download the archive (`ip_addresses.zip`) as described in the assignment file: [IP-Addr-Counter-GO.md](https://github.com/harou24/IP-Addr-Counter/blob/unsafe/assignment/IP-Addr-Counter-GO.md). Extract the archive and place the contents in the `testdata` folder for testing.
+
+
+### Makefile Commands
 
 | Command | Description |
 |---------|-------------|
