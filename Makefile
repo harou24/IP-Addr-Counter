@@ -34,10 +34,6 @@ asm:
 	@echo "Running with assembly implementation"
 	$(MAKE) IMPL=asm run
 
-nogc:
-	@echo "Running with assembly implementation and GC off"
-	GOGC=off $(MAKE) IMPL=asm run
-
 fast:
 	@echo "Running with assembly implementation, all disables, and GC off"
 	GOGC=off GODEBUG="cgocheck=0,asyncpreemptoff=1,invalidptr=0" $(MAKE) IMPL=asm run
