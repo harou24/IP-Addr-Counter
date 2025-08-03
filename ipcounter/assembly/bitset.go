@@ -18,7 +18,6 @@ Cons:
 package assembly
 
 import (
-	"IP-Addr-Counter/ipcounter/utils"
 	"bufio"
 	"bytes"
 	"fmt"
@@ -26,7 +25,6 @@ import (
 	"os"
 	"runtime"
 	"sync"
-	"unsafe"
 )
 
 // Constants defining configuration for the concurrent implementation.
@@ -58,21 +56,6 @@ func New() *BitsetCounter {
 		}
 	}
 	return &BitsetCounter{shards: shards}
-}
-
-//go:noescape
-func setBitAsm(ptr uintptr, mask uint32) bool
-
-// setBit in Go (in assembly package)
-func setBit(s *shard, offset uint32) bool {
-	byteIndex := offset / 8
-	bitIndex := offset % 8
-	mask := byte(1 << bitIndex)
-	wordIndex := byteIndex / 4
-	byteOffset := byteIndex % 4
-	wordMask := uint32(mask) << (byteOffset * 8)
-	ptr := uintptr(unsafe.Pointer(&s.bitset[0])) + uintptr(wordIndex)*4
-	return setBitAsm(ptr, wordMask)
 }
 
 // CountUniqueIPs counts unique IPv4 addresses in the specified file.
@@ -189,11 +172,11 @@ func processChunk(chunk []byte, b *BitsetCounter) int64 {
 		}
 		line := chunk[start : start+i]
 		start += i + 1
-		ipInt, _ := utils.ParseIPv4Asm(line)
+		ipInt, _ := parseIPv4Asm(line)
 		shardIdx := ipInt % numShards
 		s := b.shards[shardIdx]
 		offset := ipInt / numShards
-		if setBit(s, offset) {
+		if setBitAsm(s, offset) {
 			count++
 		}
 	}

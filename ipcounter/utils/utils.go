@@ -159,17 +159,3 @@ func ParseIPv4(b []byte) (uint32, error) {
 	}
 	return (ip << 8) | part, nil
 }
-
-//go:noescape
-func ParseIPv4AsmRaw(b []byte) (uint32, bool)
-
-var errInvalidIP = errors.New("invalid IP")
-
-// ParseIPv4Asm parses an IPv4 address from a byte slice using assembly.
-func ParseIPv4Asm(b []byte) (uint32, error) {
-	ip, ok := ParseIPv4AsmRaw(b)
-	if !ok {
-		return 0, errInvalidIP
-	}
-	return ip, nil
-}

@@ -1,7 +1,7 @@
 #include "textflag.h"
 
 // func setBitAsm(ptr uintptr, mask uint32) bool
-TEXT ·setBitAsm(SB), NOSPLIT, $0-17
+TEXT ·setBitAsmRaw(SB), NOSPLIT, $0-17
     MOVD ptr+0(FP), R0
     MOVW mask+8(FP), R1
 
