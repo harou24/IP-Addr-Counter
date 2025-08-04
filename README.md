@@ -39,7 +39,58 @@ Sample test data is provided in the repository under the `testdata` folder, incl
 | `make clean` | Remove the built binary and profile files. |
 
 
-## Examples
+## Benchmark Results
+
+This section summarizes performance benchmarks for counting unique IP addresses using different implementations: **Asm** (assembly-optimized), **Bitset** (bitset-based), **Concurrent** (multi-threaded), and **Naive** (baseline map/set approach). Tests were run on macOS with ARM64 architecture and Apple M3 Max CPU, using input files with 1M, 10M, 35M, and 50M lines.
+
+### Metrics
+- **Time (ns/op)**: Execution time per operation (lower is better).
+- **Memory (B/op)**: Bytes allocated per operation (lower is better).
+- **Allocs (allocs/op)**: Heap allocations per operation (lower is better).
+
+> **Note**: The Naive method was tested only on ~1M input for baseline comparison.
+
+### Key Findings
+- **Asm** excels in speed across all sizes, with low allocations and balanced memory usage—ideal for high-performance needs.
+- **Concurrent** is competitive, leveraging parallelism but slightly slower (20-50% more time) than Asm.
+- **Bitset** is memory-efficient for large inputs but scales poorly in time (up to 10x slower for 50M), with high allocations.
+- **Naive** is inefficient, suitable only for small datasets due to high memory and allocations.
+- Time scales linearly for Asm and Concurrent; Bitset degrades for larger inputs.
+- Results may vary on different hardware; profile for your use case.
+
+## Detailed Benchmarks
+
+### 1M Input
+| Method      | Time (ns/op) | Memory (B/op) | Allocs/op   |
+|-------------|--------------|---------------|-------------|
+| Asm         | 47,641,423   | 16,792,178    | 44          |
+| Bitset      | 56,415,604   | 16,001,688    | 1,000,004   |
+| Concurrent  | 68,283,444   | 16,792,187    | 44          |
+| Naive       | 102,052,233  | 54,903,222    | 1,008,221   |
+
+### 10M Input
+| Method      | Time (ns/op) | Memory (B/op) | Allocs/op   |
+|-------------|--------------|---------------|-------------|
+| Asm         | 82,926,061   | 318,849,109   | 88          |
+| Concurrent  | 106,129,971  | 318,846,496   | 75          |
+| Bitset      | 558,396,854  | 159,980,328   | 10,000,004  |
+
+### 35M Input
+| Method      | Time (ns/op) | Memory (B/op) | Allocs/op   |
+|-------------|--------------|---------------|-------------|
+| Asm         | 196,118,153  | 1,005,468,178 | 197         |
+| Concurrent  | 285,219,021  | 1,084,478,862 | 201         |
+| Bitset      | 1,952,486,500| 559,933,048   | 35,000,006  |
+
+### 50M Input
+| Method      | Time (ns/op) | Memory (B/op) | Allocs/op   |
+|-------------|--------------|---------------|-------------|
+| Asm         | 259,271,969  | 1,220,824,466 | 249         |
+| Concurrent  | 354,116,833  | 1,402,618,557 | 264         |
+| Bitset      | 2,800,025,791| 799,928,360   | 50,000,006  |
+
+
+Commande examples
 
 ### Bitset
 
