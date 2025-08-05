@@ -10,7 +10,7 @@ This project includes multiple implementations with varying levels of optimizati
 - **concurrent**: A multi-threaded version of bitset with sharding (divides the bitset into 16384 shards) and atomic updates for thread-safe concurrency, leveraging multiple CPU cores for faster processing on large files.
 - **asm**: The most optimized implementation, building on concurrent with assembly-optimized IP parsing and bit operations for lower-level efficiency. Includes compiler flags to disable bounds checks (-B), enable aggressive inlining (-l=4), disable pointer checks (-d=checkptr=0), and disable write barriers (-wb=0) for speed.
 
-Optimizations in "asm" and variants focus on reducing runtime overheads like bounds checking and GC pauses, but they assume well-formed input and can increase crash risk if misused—use for benchmarking.
+Optimizations in "asm" and variants focus on reducing runtime overheads like bounds checking and GC pauses, but they assume well-formed input.
 
 
 ## How to Run
