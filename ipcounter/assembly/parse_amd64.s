@@ -1,0 +1,163 @@
+#include "textflag.h"
+
+// func ParseIPv4AsmRaw(b []byte) (uint32, bool)
+TEXT ·ParseIPv4AsmRaw(SB), NOSPLIT, $0-33
+	MOVQ b+0(FP), DI   // ptr
+	MOVQ b+8(FP), DX   // len
+	MOVQ $0, CX        // ip
+	MOVQ $0, R8        // part
+	MOVQ $10, R9       // const 10
+	MOVQ $'0', R10     // '0'
+	MOVQ $'9', R11     // '9' (for cmp)
+
+	// Octet 1
+	MOVBLZX (DI), R12
+	INCQ DI
+	DECQ DX
+	SUBQ R10, R12
+	MOVQ R12, R8
+
+	MOVBLZX (DI), R12
+	SUBQ R10, R12
+	CMPQ R12, $0
+	JL dot1
+	CMPQ R12, $9
+	JG dot1
+	IMULQ R9, R8
+	ADDQ R12, R8
+	INCQ DI
+	DECQ DX
+
+	MOVBLZX (DI), R12
+	SUBQ R10, R12
+	CMPQ R12, $0
+	JL dot1
+	CMPQ R12, $9
+	JG dot1
+	IMULQ R9, R8
+	ADDQ R12, R8
+	INCQ DI
+	DECQ DX
+
+dot1:
+	INCQ DI
+	DECQ DX
+	MOVQ R8, CX
+	MOVQ $0, R8
+
+	// Octet 2
+	MOVBLZX (DI), R12
+	INCQ DI
+	DECQ DX
+	SUBQ R10, R12
+	MOVQ R12, R8
+
+	MOVBLZX (DI), R12
+	SUBQ R10, R12
+	CMPQ R12, $0
+	JL dot2
+	CMPQ R12, $9
+	JG dot2
+	IMULQ R9, R8
+	ADDQ R12, R8
+	INCQ DI
+	DECQ DX
+
+	MOVBLZX (DI), R12
+	SUBQ R10, R12
+	CMPQ R12, $0
+	JL dot2
+	CMPQ R12, $9
+	JG dot2
+	IMULQ R9, R8
+	ADDQ R12, R8
+	INCQ DI
+	DECQ DX
+
+dot2:
+	INCQ DI
+	DECQ DX
+	SHLQ $8, CX
+	ORQ R8, CX
+	MOVQ $0, R8
+
+	// Octet 3
+	MOVBLZX (DI), R12
+	INCQ DI
+	DECQ DX
+	SUBQ R10, R12
+	MOVQ R12, R8
+
+	MOVBLZX (DI), R12
+	SUBQ R10, R12
+	CMPQ R12, $0
+	JL dot3
+	CMPQ R12, $9
+	JG dot3
+	IMULQ R9, R8
+	ADDQ R12, R8
+	INCQ DI
+	DECQ DX
+
+	MOVBLZX (DI), R12
+	SUBQ R10, R12
+	CMPQ R12, $0
+	JL dot3
+	CMPQ R12, $9
+	JG dot3
+	IMULQ R9, R8
+	ADDQ R12, R8
+	INCQ DI
+	DECQ DX
+
+dot3:
+	INCQ DI
+	DECQ DX
+	SHLQ $8, CX
+	ORQ R8, CX
+	MOVQ $0, R8
+
+	// Octet 4
+	MOVBLZX (DI), R12
+	INCQ DI
+	DECQ DX
+	SUBQ R10, R12
+	MOVQ R12, R8
+
+	CMPQ DX, $0
+	JE finish
+	MOVBLZX (DI), R12
+	SUBQ R10, R12
+	CMPQ R12, $0
+	JL finish
+	CMPQ R12, $9
+	JG finish
+	IMULQ R9, R8
+	ADDQ R12, R8
+	INCQ DI
+	DECQ DX
+
+	CMPQ DX, $0
+	JE finish
+	MOVBLZX (DI), R12
+	SUBQ R10, R12
+	CMPQ R12, $0
+	JL finish
+	CMPQ R12, $9
+	JG finish
+	IMULQ R9, R8
+	ADDQ R12, R8
+	INCQ DI
+	DECQ DX
+
+finish:
+	SHLQ $8, CX
+	ORQ R8, CX
+	MOVL CX, ret+24(FP)
+	MOVB $1, ret+28(FP)
+	RET
+
+invalid:
+	MOVL $0, ret+24(FP)
+	MOVB $0, ret+28(FP)
+	RET
