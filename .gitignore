@@ -18,8 +18,8 @@ Thumbs.db
 
 # Test data
 testdata/*
-!testdata/sample_100k.txt
-!testdata/sample_100k_with_duplicates.txt
+!testdata/sample_1M.txt
+!testdata/sample_1M_with_duplicates.txt
 
 # Profiling
 *.prof

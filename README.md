@@ -21,7 +21,7 @@ Optimizations in "asm" and variants focus on reducing runtime overheads like bou
 
 
 ### Test Data
-Sample test data is provided in the repository under the `testdata` folder, including `sample_100k.txt` (100,000 IP addresses), `sample_100k_with_duplicates.txt`, and `sample_35M.txt` (35 million IP addresses). To access the full 120GB dataset, download the archive (`ip_addresses.zip`) as described in the assignment file: [IP-Addr-Counter-GO.md](https://github.com/harou24/IP-Addr-Counter/blob/unsafe/assignment/IP-Addr-Counter-GO.md). Extract the archive and place the contents in the `testdata` folder for testing.
+Sample test data is provided in the repository under the `testdata` folder, including `sample_1M.txt` (100,000 IP addresses), `sample_1M_with_duplicates.txt`, and `sample_35M.txt` (35 million IP addresses). To access the full 120GB dataset, download the archive (`ip_addresses.zip`) as described in the assignment file: [IP-Addr-Counter-GO.md](https://github.com/harou24/IP-Addr-Counter/blob/unsafe/assignment/IP-Addr-Counter-GO.md). Extract the archive and place the contents in the `testdata` folder for testing.
 
 
 ### Makefile Commands

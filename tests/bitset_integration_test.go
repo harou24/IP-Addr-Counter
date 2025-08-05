@@ -6,7 +6,7 @@ import (
 )
 
 func BenchmarkBitsetCountUniqueIPs(b *testing.B) {
-	file, err := getTestFile("sample_100k.txt")
+	file, err := getTestFile("sample_1M.txt")
 	if err != nil {
 		b.Fatalf("Failed to get test file: %v", err)
 	}
@@ -21,7 +21,7 @@ func BenchmarkBitsetCountUniqueIPs(b *testing.B) {
 }
 
 func TestBitsetWithSampleData(t *testing.T) {
-	file, err := getTestFile("sample_100k.txt")
+	file, err := getTestFile("sample_1M.txt")
 	if err != nil {
 		t.Fatalf("Failed to get test file: %v", err)
 	}
@@ -43,7 +43,7 @@ func TestBitsetWithSampleData(t *testing.T) {
 }
 
 func TestBitsetWithDuplicates(t *testing.T) {
-	file, err := getTestFile("sample_100k_with_duplicates.txt")
+	file, err := getTestFile("sample_1M_with_duplicates.txt")
 	if err != nil {
 		t.Fatalf("Failed to get test file: %v", err)
 	}
